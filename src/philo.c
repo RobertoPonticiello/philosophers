@@ -1,10 +1,12 @@
+#include "philo.h"
+
 int parse_args(int argc, char **argv, t_data *data)
 {
 	if (argc < 5 || argc > 6)
 	{
 		write (2, "Usage: ./philo n_philo time_to_die time_to_eat "
-            "time_to_sleep [must_eat_count]\n",
-            81);
+			"time_to_sleep [must_eat_count]\n",
+			81);
 		return (1);
 	}
 	data->n_philo = ft_atoi(argv[1]);
@@ -14,10 +16,10 @@ int parse_args(int argc, char **argv, t_data *data)
 	if (argc == 6)
 		data->must_eat_count = ft_atoi(argv[5]);
 	if (data->n_philo <= 0 || data->time_to_die <= 0 ||
-        data->time_to_eat <= 0 || data->time_to_sleep <= 0 ||
-        (argc == 6 && data->must_eat_count <= 0))
-    {
-        write(2, "All arguments must be positive\n", 44);
+		data->time_to_eat <= 0 || data->time_to_sleep <= 0 ||
+		(argc == 6 && data->must_eat_count <= 0))
+	{
+		write(2, "All arguments must be positive\n", 44);
 		return(1);
 	}
 	return (0);

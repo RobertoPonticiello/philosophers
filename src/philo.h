@@ -1,4 +1,5 @@
-
+#ifndef PHILO_H
+# define PHILO_H
 
 typedef struct s_data {
     int             n_philo;
@@ -17,3 +18,7 @@ typedef struct s_philo {
     t_data *data;
     pthread_t thread;
 }   t_philo;
+
+int	ft_atoi(const char *str);
+
+#endif
