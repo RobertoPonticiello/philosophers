@@ -1,6 +1,10 @@
 #ifndef PHILO_H
 # define PHILO_H
 
+#include <pthread.h>
+#include <stdlib.h>
+#include <stdio.h>
+
 typedef struct s_data {
     int             n_philo;
     long            time_to_die;
