@@ -1,6 +1,6 @@
 #include "philo.h"
 
-int parse_args(int argc, char **argv, t_data *data)
+int	parse_args(int argc, char **argv, t_data *data)
 {
 	if (argc < 5 || argc > 6)
 	{
@@ -13,41 +13,41 @@ int parse_args(int argc, char **argv, t_data *data)
 	data->time_to_die = ft_atoi(argv[2]);
 	data->time_to_eat = ft_atoi(argv[3]);
 	data->time_to_sleep = ft_atoi(argv[4]);
+	data->must_eat_count = -1;
 	if (argc == 6)
 		data->must_eat_count = ft_atoi(argv[5]);
-	if (data->n_philo <= 0 || data->time_to_die <= 0 ||
-		data->time_to_eat <= 0 || data->time_to_sleep <= 0 ||
-		(argc == 6 && data->must_eat_count <= 0))
+	if (data->n_philo <= 0 || data->time_to_die <= 0
+		|| data->time_to_eat <= 0 || data->time_to_sleep <= 0
+		|| (argc == 6 && data->must_eat_count <= 0))
 	{
 		write(2, "All arguments must be positive\n", 44);
-		return(1);
+		return (1);
 	}
 	return (0);
 }
-/*
-void safe_print(t_philo *p, char *msg)
-{
-	pthread_mutex_lock(&p->data->print_mutex);
-	printf("%ld %d %s\n",
-		get_timestamp() - p->data->start_time,
-		p->id, msg);
-	pthread_mutex_unlock(&p->data->print_mutex);
-}
 
-long get_timestamp(void)
+int	init_data(t_data *data, t_philo **philos)
 {
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return tv.tv_sec * 1000 + tv.tv_usec / 1000;
-}
+	int	i;
 
-while (1) {
-	for each p in philos
+	i = 0;
+	data->start_time = get_timestamp();
+	if (data->start_time < 0)
+		return (1);
+	*philos = malloc(sizeof(t_philo) * data->n_philo);
+	if (!*philos)
+		return (1);
+	while (i < data->n_philo)
 	{
-		if (get_timestamp() - p->last_meal > data->time_to_die) {
-			safe_print(p, "died");
-			exit_program();
-		}
+		(*philos)[i].id = i + 1;
+		(*philos)[i].data = data;
+		(*philos)[i].last_meal = data->start_time;
+		i++;
 	}
+	if (init_mutexes(data) != 0)
+	{
+		free(*philos);
+		return (1);
+	}
+	return (0);
 }
-*/

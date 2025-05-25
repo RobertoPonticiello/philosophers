@@ -1,13 +1,16 @@
 #include "philo.h"
 
-int init_mutexes(t_data *data)
+int	init_mutexes(t_data *data)
 {
-	int i;
+	int	i;
 
-	i = 0
+	i = 0;
 	data->forks = malloc(sizeof(pthread_mutex_t) * data->n_philo);
 	if (!data->forks)
+	{
+		free(data->forks);
 		return (1);
+	}
 	while (i < data->n_philo)
 	{
 		if (pthread_mutex_init(&data->forks[i], NULL) != 0)
@@ -25,9 +28,9 @@ int init_mutexes(t_data *data)
 	return (0);
 }
 
-void destroy_mutexes(t_data *data)
+void	destroy_mutexes(t_data *data)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < data->n_philo)
