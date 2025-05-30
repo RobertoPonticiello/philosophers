@@ -28,5 +28,18 @@ typedef struct s_philo
 }	t_philo;
 
 int	ft_atoi(const char *str);
+void putnbr_fd(long n, int fd);
+size_t str_len(const char *s);
+int	parse_args(int argc, char **argv, t_data *data);
+int	init_data(t_data *data, t_philo **philos);
+void *philosopher_routine(void *arg);
+long	get_timestamp(void);
+void	safe_print(t_philo *philo, const char *msg);
+int	init_mutexes(t_data *data);
+void	destroy_mutexes(t_data *data);
+
+
+
+
 
 #endif

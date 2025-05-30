@@ -51,3 +51,28 @@ int	init_data(t_data *data, t_philo **philos)
 	}
 	return (0);
 }
+
+void *philosopher_routine(void *arg)
+{
+	t_philo	*p;
+	t_data	*data;
+	int		left;
+	int		right;
+
+	p = arg;
+	data = p->data;
+	left = p->id - 1;
+	right = (p->id) % data->n_philo;
+	if (p->id % 2 == 0)
+		usleep(100);
+	pthread_mutex_lock(&data->forks[left]);
+	safe_print(p, "has taken a fork");
+	pthread_mutex_lock(&data->forks[right]);
+	safe_print(p, "has taken a fork");
+	p->last_meal = get_timestamp();
+	safe_print(p, "is eating");
+	usleep(data->time_to_eat * 1000);
+	pthread_mutex_unlock(&data->forks[left]);
+	pthread_mutex_unlock(&data->forks[right]);
+	return (NULL);
+}

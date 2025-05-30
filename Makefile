@@ -1,18 +1,20 @@
-CC = cc
-CFLAGS = -Wall -Wextra -Werror
-SRCS = $(wildcard src/*.c)
-OBJS = $(SRCS:.c=.o)
-NAME = philo
+CC       = cc
+CFLAGS   = -Wall -Wextra -Werror
+SRCS     = $(wildcard src/*.c)
+OBJS     = $(SRCS:.c=.o)
+NAME     = philo
+
+.PHONY: all clean fclean re
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
-    $(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
-    rm -f $(OBJS)
+	rm -f $(OBJS)
 
 fclean: clean
-    rm -f $(NAME)
+	rm -f $(NAME)
 
 re: fclean all
