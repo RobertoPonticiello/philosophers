@@ -24,3 +24,30 @@ void	safe_print(t_philo *philo, const char *msg)
 	pthread_mutex_unlock(&philo->data->print_mutex);
 }
 
+void *monitor_routine(void *arg)
+{
+    t_data *data = arg;
+    int i;
+
+    while (1)
+    {
+        i = 0;
+        while (i < data->n_philo)
+        {
+            pthread_mutex_lock(&data->print_mutex);
+            if (get_timestamp() - data->philos[i].last_meal > data->time_to_die)
+            {
+                // un filosofo è morto
+                printf("%ld %d died\n",
+                    get_timestamp() - data->start_time,
+                    data->philos[i].id);
+                data->someone_dead = 1;
+                pthread_mutex_unlock(&data->print_mutex);
+                return (NULL);
+            }
+            pthread_mutex_unlock(&data->print_mutex);
+            i++;
+        }
+        usleep(1000); // controlla ogni 1 ms circa
+    }
+}
