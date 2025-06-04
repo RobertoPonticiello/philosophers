@@ -26,28 +26,35 @@ void	safe_print(t_philo *philo, const char *msg)
 
 void *monitor_routine(void *arg)
 {
-    t_data *data = arg;
-    int i;
+    t_data *data = (t_data *)arg;
+    int     i;
 
     while (1)
     {
         i = 0;
         while (i < data->n_philo)
         {
-            pthread_mutex_lock(&data->print_mutex);
-            if (get_timestamp() - data->philos[i].last_meal > data->time_to_die)
+            pthread_mutex_lock(&data->data_mutex);
+            /* Se tutti hanno mangiato abbastanza volte, esco */
+            if (data->must_eat_count > 0
+                && data->full_philos == data->n_philo)
             {
-                // un filosofo è morto
-                printf("%ld %d died\n",
-                    get_timestamp() - data->start_time,
-                    data->philos[i].id);
-                data->someone_dead = 1;
-                pthread_mutex_unlock(&data->print_mutex);
+                pthread_mutex_unlock(&data->data_mutex);
                 return (NULL);
             }
-            pthread_mutex_unlock(&data->print_mutex);
+            /* Se un filosofo è scaduto, stampo “died” e metto someone_dead */
+            if (get_timestamp() - data->philos[i].last_meal
+                > data->time_to_die)
+            {
+                safe_print(&data->philos[i], "died");
+                data->someone_dead = 1;
+                pthread_mutex_unlock(&data->data_mutex);
+                return (NULL);
+            }
+            pthread_mutex_unlock(&data->data_mutex);
             i++;
         }
-        usleep(1000); // controlla ogni 1 ms circa
+        usleep(1000);
     }
+    return (NULL);
 }
