@@ -35,22 +35,24 @@ void *monitor_routine(void *arg)
         while (i < data->n_philo)
         {
             pthread_mutex_lock(&data->data_mutex);
+
             /* Se tutti hanno mangiato abbastanza volte, esco */
             if (data->must_eat_count > 0
                 && data->full_philos == data->n_philo)
             {
                 pthread_mutex_unlock(&data->data_mutex);
-                return (NULL);
+                exit(EXIT_SUCCESS);
             }
-            /* Se un filosofo è scaduto, stampo “died” e metto someone_dead */
+
+            /* Se un filosofo è scaduto, stampo “died” e termino subito il processo */
             if (get_timestamp() - data->philos[i].last_meal
                 > data->time_to_die)
             {
-                safe_print(&data->philos[i], "died");
-                data->someone_dead = 1;
                 pthread_mutex_unlock(&data->data_mutex);
-                return (NULL);
+                safe_print(&data->philos[i], "died");
+                exit(EXIT_SUCCESS);
             }
+
             pthread_mutex_unlock(&data->data_mutex);
             i++;
         }
