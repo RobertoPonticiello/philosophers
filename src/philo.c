@@ -72,52 +72,23 @@ int init_data(t_data *data, t_philo **philos)
 
 void *philosopher_routine(void *arg)
 {
-    t_philo *p = arg;
+    t_philo *p = (t_philo *)arg;
     t_data  *d = p->data;
-    int      left = p->id - 1;
-    int      right = p->id % d->n_philo;
 
-    p->eat_count = 0;
+    if (p->id % 2 == 0)
+        usleep(1000);
+
     while (1)
     {
-        /* 1) Esco subito se qualcuno è già morto o tutti hanno finito */
         pthread_mutex_lock(&d->data_mutex);
-        if (d->someone_dead
-            || (d->must_eat_count > 0 && d->full_philos == d->n_philo))
-        {
-            pthread_mutex_unlock(&d->data_mutex);
+        if (d->someone_dead) { pthread_mutex_unlock(&d->data_mutex); break; }
+        pthread_mutex_unlock(&d->data_mutex);
+
+        if (eat(p))
             break;
-        }
-        pthread_mutex_unlock(&d->data_mutex);
 
-        /* 2) Stagger per ID pari */
-        if (p->id % 2 == 0)
-            usleep(100);
-
-        /* 3) Prendo forchette (uscita anticipata se dead) */
-        pthread_mutex_lock(&d->data_mutex);
-        if (d->someone_dead) { pthread_mutex_unlock(&d->data_mutex); break; }
-        pthread_mutex_unlock(&d->data_mutex);
-        take_forks(p, left, right);
-
-        /* 4) Mangio (uscita anticipata se dead) */
-        pthread_mutex_lock(&d->data_mutex);
-        if (d->someone_dead) { pthread_mutex_unlock(&d->data_mutex); break; }
-        pthread_mutex_unlock(&d->data_mutex);
-        eat(p);
-
-        /* 5) Rilascio forchette */
-        release_forks(d, left, right);
-
-        /* 6) Aggiorno contatori “full” se serve */
-        if (d->must_eat_count > 0 && p->eat_count == d->must_eat_count)
-            inc_full(p);
-
-        /* 7) Dormo e penso (uscita anticipata se dead) */
-        pthread_mutex_lock(&d->data_mutex);
-        if (d->someone_dead) { pthread_mutex_unlock(&d->data_mutex); break; }
-        pthread_mutex_unlock(&d->data_mutex);
-        sleep_and_think(p);
+        if (sleep_and_think(p))
+            break;
     }
     return (NULL);
 }

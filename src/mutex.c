@@ -35,5 +35,6 @@ void	destroy_mutexes(t_data *data)
 		i++;
 	}
 	pthread_mutex_destroy(&data->print_mutex);
+    pthread_mutex_destroy(&data->data_mutex);
 	free(data->forks);
 }

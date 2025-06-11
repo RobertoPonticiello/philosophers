@@ -52,10 +52,10 @@ long    get_timestamp(void);
 void    safe_print(t_philo *philo, const char *msg);
 
 void    take_forks(t_philo *p, int left, int right);
-void    eat(t_philo *p);
+int		eat(t_philo *philo);
+int		sleep_and_think(t_philo *philo);
 void    release_forks(t_data *d, int left, int right);
 void    inc_full(t_philo *p);
-void    sleep_and_think(t_philo *p);
 
 void   *philosopher_routine(void *arg);
 void   *monitor_routine(void *arg);

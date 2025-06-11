@@ -36,27 +36,27 @@ void *monitor_routine(void *arg)
         {
             pthread_mutex_lock(&data->data_mutex);
 
-            /* Se tutti hanno mangiato abbastanza volte, esco */
-            if (data->must_eat_count > 0
-                && data->full_philos == data->n_philo)
+            /* tutti hanno mangiato abbastanza volte */
+            if (data->must_eat_count > 0 && data->full_philos == data->n_philo)
             {
+                data->someone_dead = 1;          /* flag di termina­zione */
                 pthread_mutex_unlock(&data->data_mutex);
-                exit(EXIT_SUCCESS);
+                return (NULL);
             }
 
-            /* Se un filosofo è scaduto, stampo “died” e termino subito il processo */
-            if (get_timestamp() - data->philos[i].last_meal
-                > data->time_to_die)
+            /* un filosofo è morto */
+            if (get_timestamp() - data->philos[i].last_meal > data->time_to_die)
             {
-                pthread_mutex_unlock(&data->data_mutex);
                 safe_print(&data->philos[i], "died");
-                exit(EXIT_SUCCESS);
+                data->someone_dead = 1;          /* avvisa tutti gli altri */
+                pthread_mutex_unlock(&data->data_mutex);
+                return (NULL);
             }
 
             pthread_mutex_unlock(&data->data_mutex);
             i++;
         }
-        usleep(1000);
+        usleep(1000);        /* ~1 ms         */
     }
     return (NULL);
 }
