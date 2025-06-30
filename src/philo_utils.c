@@ -1,14 +1,5 @@
 #include "philo.h"
 
-long	get_timestamp(void)
-{
-	struct timeval tv;
-
-	if (gettimeofday(&tv, NULL) != 0)
-		return (-1);
-	return (tv.tv_sec * 1000L + tv.tv_usec / 1000L);
-}
-
 void	safe_print(t_philo *philo, const char *msg)
 {
 	long	ts;
@@ -24,39 +15,71 @@ void	safe_print(t_philo *philo, const char *msg)
 	pthread_mutex_unlock(&philo->data->print_mutex);
 }
 
-void *monitor_routine(void *arg)
+static int	all_philos_full(t_data *data)
 {
-    t_data *data = (t_data *)arg;
-    int     i;
+	int	result;
 
-    while (1)
-    {
-        i = 0;
-        while (i < data->n_philo)
-        {
-            pthread_mutex_lock(&data->data_mutex);
+	pthread_mutex_lock(&data->data_mutex);
+	result = (data->must_eat_count > 0
+			&& data->full_philos == data->n_philo);
+	pthread_mutex_unlock(&data->data_mutex);
+	return (result);
+}
 
-            /* tutti hanno mangiato abbastanza volte */
-            if (data->must_eat_count > 0 && data->full_philos == data->n_philo)
-            {
-                data->someone_dead = 1;          /* flag di termina­zione */
-                pthread_mutex_unlock(&data->data_mutex);
-                return (NULL);
-            }
+static int	philo_starved(t_philo *philo, long time_to_die)
+{
+	long	elapsed;
+	int		result;
+	t_data	*data;
 
-            /* un filosofo è morto */
-            if (get_timestamp() - data->philos[i].last_meal > data->time_to_die)
-            {
-                safe_print(&data->philos[i], "died");
-                data->someone_dead = 1;          /* avvisa tutti gli altri */
-                pthread_mutex_unlock(&data->data_mutex);
-                return (NULL);
-            }
+	data = philo->data;
+	pthread_mutex_lock(&data->data_mutex);
+	elapsed = get_timestamp() - philo->last_meal;
+	result = (elapsed > time_to_die);
+	pthread_mutex_unlock(&data->data_mutex);
+	return (result);
+}
 
-            pthread_mutex_unlock(&data->data_mutex);
-            i++;
-        }
-        usleep(1000);        /* ~1 ms         */
-    }
-    return (NULL);
+static int	check_philos(t_data *data)
+{
+	int	i;
+
+	i = 0;
+	while (i < data->n_philo)
+	{
+		if (philo_starved(&data->philos[i], data->time_to_die))
+		{
+			pthread_mutex_lock(&data->data_mutex);
+			safe_print(&data->philos[i], "died");
+			data->someone_dead = 1;
+			pthread_mutex_unlock(&data->data_mutex);
+			return (1);
+		}
+		i++;
+	}
+	return (0);
+}
+
+void	*monitor_routine(void *arg)
+{
+	t_data	*data;
+	int		stop;
+
+	data = (t_data *)arg;
+	stop = 0;
+	while (!stop)
+	{
+		if (all_philos_full(data))
+		{
+			pthread_mutex_lock(&data->data_mutex);
+			data->someone_dead = 1;
+			pthread_mutex_unlock(&data->data_mutex);
+			stop = 1;
+		}
+		else if (check_philos(data))
+			stop = 1;
+		else
+			usleep(1000);
+	}
+	return (NULL);
 }

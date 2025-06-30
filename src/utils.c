@@ -23,9 +23,9 @@ int	ft_atoi(const char *str)
 	return (sign * r);
 }
 
-void putnbr_fd(long n, int fd)
+void	putnbr_fd(long n, int fd)
 {
-	char c;
+	char	c;
 
 	if (n >= 10)
 		putnbr_fd(n / 10, fd);
@@ -33,9 +33,11 @@ void putnbr_fd(long n, int fd)
 	write(fd, &c, 1);
 }
 
-size_t str_len(const char *s)
+size_t	str_len(const char *s)
 {
-	size_t len = 0;
+	size_t	len;
+
+	len = 0;
 	while (s[len])
 		len++;
 	return (len);
